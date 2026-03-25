@@ -2,36 +2,28 @@
 # Zaheer Dhalla
 # Thursday, May 4th, 2023
 
-# Opening a .txt file that contains all words
-rawWords = open("words.txt")
+import json
 
-wordList = []
+# Load from JSON file
+with open("5letterWords.json", "r") as f:
+    fiveLetterWords = json.load(f)
 
-# Putting all the words into a list
-for line in rawWords:
-    line = line.replace("\n", "")
-    wordList.append(line.lower())
-    
-fiveLetterWords = []
-
-# Filtering for 5 letter words
-for word in wordList:
-    if len(word) == 5:
-        fiveLetterWords.append(word.lower())
+# List to keep track of letters that are out of place
+outOfPlaceLetters = [[],[],[],[],[]]
         
 # Finding all potential words from known information
 def findPotentialWords():
     potentialWords = []      
     known = input("Type what you know (input '.' for unknown letters): ")
-    usedLetters = input("Type letters you know without the position: ")
+    usedLetters = input("Type letters you know without the position (input '.' for letters in between): ")
     excludedLetters = input("Type letters that are not in the word: ")
     
     # Creating a dictionary that an index number with its designated character in the word we're looking for
     knownPositions = dict()
-    index = 0;
+    index = 0
     for letter in known:
         if letter != '.':
-            knownPositions[index] = letter;
+            knownPositions[index] = letter
         index += 1
 
         
@@ -42,9 +34,17 @@ def findPotentialWords():
         valid = True
         
         # Checking if the letters known without position are in the current word
-        for letter in usedLetters:
-            if letter not in word:
+        for i in range (len(usedLetters)):
+            # If an out-of-place letter is at the same index as in the word, it is the incorrect word
+            if usedLetters[i] not in word and usedLetters[i] != '.':
                 valid = False
+
+            if usedLetters[i] not in outOfPlaceLetters[i] and usedLetters[i] != '.':
+                outOfPlaceLetters[i].append(usedLetters[i])
+           
+            if word[i] in outOfPlaceLetters[i]:
+                valid = False
+
         # Checking if the letters that aren't in the answer are also not in the current word
         for letter in excludedLetters:
             if letter in word:
